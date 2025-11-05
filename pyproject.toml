@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ace-fitness"  # Must be unique on PyPI if you plan to publish
+version = "0.0.1"     # Use a placeholder version; Jenkins handles artifact versioning
+description = "A basic description for your project"
+authors = [
+    {name = "2024ht66012", email = "2024ht66012@wilp.bits-pilani.ac.in"},
+]
+# Add any required dependencies here
+dependencies = [
+    # "requests", 
+    # "numpy",
+]
+
+[tool.setuptools]
+# Tell setuptools where to find your actual code package/module
+# Example: if your main code is in 'src/ace_fitness/', use:
+# package-dir = {"" = "src"}
+packages = ["your_module_name"] # Replace with the name of the folder containing your Python code
