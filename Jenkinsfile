@@ -3,12 +3,7 @@
 
 pipeline {
     // Agent: Use a Docker image to ensure a consistent Python environment for the build.
-    agent {
-        docker {
-            image 'python:3.11-slim' // Specify a robust, slim Python image
-            args '-u root' // Use root to avoid permission issues during dependency install
-        }
-    }
+    agent any
 
     // Environment variables can define key parameters like the virtual environment path
     environment {
