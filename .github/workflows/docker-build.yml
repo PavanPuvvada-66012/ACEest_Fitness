@@ -28,6 +28,7 @@ jobs:
           fi
           
           # Output the determined version to be used in subsequent steps
+          
           echo "DOCKER_IMAGE_TAG=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
@@ -37,7 +38,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/my-image:${{ steps.set_tag.outputs.VERSION }} .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/my-image:${{ steps.set_tag.outputs.DOCKER_IMAGE_TAG }} .
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/my-image:${{ steps.set_tag.outputs.VERSION }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/my-image:${{ steps.set_tag.outputs.DOCKER_IMAGE_TAG }}
