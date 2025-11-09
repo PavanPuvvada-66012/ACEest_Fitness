@@ -19,26 +19,21 @@
     <div class="summary-box">
         <h2>Session Summary</h2>
 
-        {% for category, sessions in workouts.items() %}
-            <h3>{{ category }}:</h3>
+        {% for category, sessions in categorized_workouts.items() %}
+            <h3 style="color: #007bff; margin-top: 20px;">{{ category }}:</h3>
             {% if sessions %}
-                <ul>
                 {% for entry in sessions %}
-                    <li>
-                        {{ loop.index }}. {{ entry.exercise }} - {{ entry.duration }} min 
-                        <span style="font-size: 0.8em; color: #888;">({{ entry.timestamp.split(' ')[0] }})</span>
-                    </li>
-                {% endfor %}
-                </ul>
+                    <p>{{ entry.exercise }} - {{ entry.duration }} min</p>
+            {% endfor %}
             {% else %}
-                <p style="padding-left: 15px; color: #888;">No sessions recorded.</p>
+                <p>No sessions recorded.</p>
             {% endif %}
         {% endfor %}
 
         <hr>
 
         <p class="total">Total Time Spent: {{ total_time }} minutes</p>
-        <p class="motivational">{{ motivational_message }}</p>
+        <p class="motivational">{{ motivation_msg }}</p>
 
         <p><a href="{{ url_for('index') }}">← Back to Tracker</a></p>
     </div>

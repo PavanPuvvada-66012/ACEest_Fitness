@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2 style="text-align: center; margin-top: 0;">Personalized Workout Chart</h2>
+    
+    {% for category, exercises in chart_data.items() %}
+        <h3 style="color: #007bff; margin-top: 20px; border-left: 5px solid #007bff; padding-left: 10px;">{{ category }} Exercises:</h3>
+        <ul style="list-style-type: none; padding-left: 20px;">
+        {% for exercise in exercises %}
+            <li style="padding: 5px 0;">• {{ exercise }}</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+
+{% endblock %}

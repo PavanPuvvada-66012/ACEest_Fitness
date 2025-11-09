@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEest Fitness Tracker</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f9; }
+        .container { max-width: 700px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .header { text-align: center; color: #333; margin-bottom: 20px; }
+        
+        /* Tab Navigation Styles (Mimics ttk.Notebook) */
+        .tabs { display: flex; border-bottom: 2px solid #ccc; margin-bottom: 20px; }
+        .tab-link { padding: 10px 15px; text-decoration: none; color: #555; font-weight: bold; border: 1px solid transparent; border-bottom: none; }
+        .tab-link:hover { background-color: #eee; }
+        .tab-link.active { color: #007bff; border-color: #ccc; border-top-left-radius: 6px; border-top-right-radius: 6px; border-bottom: 2px solid white; margin-bottom: -2px; }
+
+        /* Flash Messages */
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .flash.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">ACEest Fitness & Gym Tracker</h1>
+        
+        <nav class="tabs">
+            <a href="{{ url_for('index') }}" class="tab-link {% if current_tab == 'log' %}active{% endif %}">🏋️ Log Workouts</a>
+            <a href="{{ url_for('workout_chart') }}" class="tab-link {% if current_tab == 'chart' %}active{% endif %}">📊 Workout Chart</a>
+            <a href="{{ url_for('diet_chart') }}" class="tab-link {% if current_tab == 'diet' %}active{% endif %}">🥗 Diet Chart</a>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </div>
+</body>
+</html>
