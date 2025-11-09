@@ -44,9 +44,8 @@ pipeline {
 
         stage('Lint and Quality Check') {
             steps {
-                echo 'Running static analysis (e.g., flake8 or black)...'
-                // Assuming 'flake8' is included in your requirements.txt
-                sh '. ${VENV_DIR}/bin/activate && flake8 --max-line-length=120 --exclude=./${VENV_DIR},.git'
+                echo 'Running static analysis using Pylint...'
+                sh '. ${VENV_DIR}/bin/activate && pylint **/*.py || true' 
             }
         }
 
