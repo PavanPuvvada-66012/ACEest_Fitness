@@ -1,17 +1,15 @@
 # app.py
 """
 Flask web application for ACEest Fitness Tracker.
-
 Provides endpoints to view workouts, add new workouts via POST,
 and renders the homepage.
 """
-from flask import Flask, render_template, request, redirect, url_for, flash
 from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
 # Used for flash() messages
 app.secret_key = 'super_secret_key_for_fitness' 
-
 # Global variable to store workout data (In-memory storage)
 # This mimics the self.workouts dictionary from the Tkinter app
 WORKOUTS = {"Warm-up": [], "Workout": [], "Cool-down": []}
@@ -22,13 +20,11 @@ def index():
     Renders the main workout logging page.
     """
     # Check if there are any existing workouts to show the 'View Summary' button
-    has_workouts = any(WORKOUTS.values()) 
-    
+    has_workouts = any(WORKOUTS.values())
     # Render the main template, passing necessary data
-    return render_template('index.html', 
+    return render_template('index.html',
                            categories=WORKOUTS.keys(),
                            has_workouts=has_workouts)
-
 @app.route('/add', methods=['POST'])
 def add_workout():
     """
@@ -64,7 +60,6 @@ def add_workout():
         flash("Invalid category selected.", 'error')
         
     return redirect(url_for('index'))
-
 @app.route('/summary')
 def view_summary():
     """
@@ -75,8 +70,7 @@ def view_summary():
         flash("No sessions logged yet!", 'info')
         return redirect(url_for('index'))
     
-    total_time = sum(entry['duration'] for sessions in WORKOUTS.values() for entry in sessions)
-    
+    total_time = sum(entry['duration'] for sessions in WORKOUTS.values() for entry in sessions)   
     # Determine the motivational message based on total_time
     if total_time < 30:
         msg = "Good start! Keep moving 💪"
@@ -84,11 +78,9 @@ def view_summary():
         msg = "Nice effort! You're building consistency 🔥"
     else:
         msg = "Excellent dedication! Keep up the great work 🏆"
-
     return render_template('summary.html', 
                            workouts=WORKOUTS, 
                            total_time=total_time, 
                            motivational_message=msg)
-
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
