@@ -5,6 +5,10 @@ pipeline {
     // Agent: Use a Docker image to ensure a consistent Python environment for the build.
     agent any
 
+    tools {
+        python 'Python3.9' 
+    }
+
     // Environment variables can define key parameters like the virtual environment path
     environment {
         // Defines the name of the virtual environment directory
