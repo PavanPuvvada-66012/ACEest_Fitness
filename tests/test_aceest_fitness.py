@@ -5,16 +5,18 @@ from src.app import app, workouts_log
 
 
 class FitnessTrackerTests(unittest.TestCase):
-
+  
     def setUp(self):
         """Set up a test client and clear the data before each test."""
+        # This line creates the missing 'self.app' attribute
         self.app = app.test_client()
         self.app.testing = True
         # Clear the in-memory log for a clean start on every test
         workouts_log.clear()
 
-    # --- Utility function for posting workout data ---
     def post_workout(self, exercise="Running", duration=30, category="Workout"):
+        """Utility function for simulating a workout submission."""
+        # This line uses the 'self.app' attribute initialized above
         return self.app.post(
             '/add',
             data={
@@ -24,6 +26,39 @@ class FitnessTrackerTests(unittest.TestCase):
             },
             follow_redirects=True
         )
+    
+    def test_progress_tracker_no_data(self):
+        """Tests progress tracker renders correctly with no logged data."""
+        response = self.app.get('/progress')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Personal Progress Tracker', response.data)
+        # Check for the empty data message
+        self.assertIn(b'Log some workout sessions to view your progress charts!', response.data)
+        # Check that no image tag is present
+        self.assertNotIn(b'data:image/png;base64', response.data)
+
+    def test_progress_tracker_with_data(self):
+        """Tests progress tracker renders an image when data is present."""
+        # Log data into different categories
+        self.post_workout(exercise="Jumping Jacks", duration=10, category="Warm-up")
+        self.post_workout(exercise="Bench Press", duration=30, category="Workout")
+        
+        response = self.app.get('/progress')
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that the image tag is present (indicating the chart was generated)
+        self.assertIn(b'data:image/png;base64', response.data)
+        
+        # Check the size of the base64 string to ensure it's not empty
+        chart_start_index = response.data.find(b'data:image/png;base64,') + len(b'data:image/png;base64,')
+        chart_end_index = response.data.find(b'"', chart_start_index)
+        
+        base64_string = response.data[chart_start_index:chart_end_index]
+        
+        # Check if the encoded string is large enough (indicating actual image data)
+        # A small PNG image will typically be > 1000 characters
+        self.assertGreater(len(base64_string), 1000)
+
     def test_add_session_success(self):
         """Tests successful addition of a workout session."""
         response = self.post_workout(exercise="Squats", duration=20, category="Workout")
