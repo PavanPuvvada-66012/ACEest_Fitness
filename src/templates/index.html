@@ -1,24 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Fitness Tracker Web</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEest Fitness Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .container { width: 400px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        h1 { color: #007bff; }
+        .message { padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 8px; margin: 5px 0 15px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .summary-btn { background-color: #28a745; margin-left: 10px; }
+        .summary-btn:hover { background-color: #1e7e34; }
+    </style>
 </head>
 <body>
-    <h1>Workout Tracker</h1>
-    <form action="/add" method="post">
-        <input type="text" name="workout" placeholder="Workout" required />
-        <input type="number" name="duration" placeholder="Duration (minutes)" required />
-        <button type="submit">Add Workout</button>
-    </form>
+    <div class="container">
+        <h1>🏋️ ACEest Fitness & Gym Tracker</h1>
 
-    <h2>Logged Workouts</h2>
-    <ul>
-        {% for w in workouts %}
-            <li>{{ loop.index }}. {{ w.workout }} - {{ w.duration }} minutes</li>
-        {% else %}
-            <li>No workouts logged yet.</li>
-        {% endfor %}
-    </ul>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('add_workout') }}" method="post">
+            <label for="category">Select Category:</label>
+            <select id="category" name="category">
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == 'Workout' %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="workout">Exercise:</label>
+            <input type="text" id="workout" name="workout" placeholder="e.g., Squats" required>
+
+            <label for="duration">Duration (min):</label>
+            <input type="number" id="duration" name="duration" placeholder="e.g., 30" required min="1">
+            
+            <button type="submit">Add Session</button>
+            
+            {% if has_workouts %}
+                <a href="{{ url_for('view_summary') }}">
+                    <button type="button" class="summary-btn">View Summary</button>
+                </a>
+            {% endif %}
+        </form>
+    </div>
 </body>
 </html>
-
