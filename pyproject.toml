@@ -19,4 +19,4 @@ dependencies = [
 # Tell setuptools where to find your actual code package/module
 # Example: if your main code is in 'src/ace_fitness/', use:
 # package-dir = {"" = "src"}
-packages = ["ace_fitness"] # Replace with the name of the folder containing your Python code
+packages = ["src"] # Replace with the name of the folder containing your Python code
