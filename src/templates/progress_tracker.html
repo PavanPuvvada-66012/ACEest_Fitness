@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2 style="text-align: center; margin-top: 0;">Personal Progress Tracker</h2>
+    
+    {% if chart_image %}
+        <div style="text-align: center; margin-top: 20px;">
+            <img src="data:image/png;base64,{{ chart_image }}" alt="Workout Progress Charts" style="max-width: 100%; height: auto;">
+        </div>
+    {% else %}
+        <p style="text-align: center; font-style: italic; color: #888; margin-top: 40px;">
+            Log some workout sessions to view your progress charts!
+        </p>
+    {% endif %}
+
+{% endblock %}

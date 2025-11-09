@@ -29,6 +29,7 @@
             <a href="{{ url_for('index') }}" class="tab-link {% if current_tab == 'log' %}active{% endif %}">🏋️ Log Workouts</a>
             <a href="{{ url_for('workout_chart') }}" class="tab-link {% if current_tab == 'chart' %}active{% endif %}">📊 Workout Chart</a>
             <a href="{{ url_for('diet_chart') }}" class="tab-link {% if current_tab == 'diet' %}active{% endif %}">🥗 Diet Chart</a>
+            <a href="{{ url_for('progress_tracker') }}" class="tab-link {% if current_tab == 'progress' %}active{% endif %}">📈 Progress Tracker</a>
         </nav>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
