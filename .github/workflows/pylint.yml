@@ -21,3 +21,9 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
+    - name: Enforce Score Threshold (>= 8.5)
+      if: ${{ steps.pylint_check.outputs.score < 8.5 }}
+      run: |
+          echo "Pylint score of ${{ steps.pylint_check.outputs.score }} is below the required 8.5 threshold."
+          # Explicitly exit with a non-zero code to fail the job
+          exit 1
