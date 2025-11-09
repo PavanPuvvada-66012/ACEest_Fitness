@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Summary</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .summary-box { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        h2 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h3 { color: #007bff; margin-top: 20px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 5px; padding-left: 15px; border-left: 3px solid #ccc; }
+        .total { font-weight: bold; color: #28a745; font-size: 1.2em; margin-top: 20px; }
+        .motivational { color: #555; font-style: italic; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="summary-box">
+        <h2>Session Summary</h2>
+
+        {% for category, sessions in workouts.items() %}
+            <h3>{{ category }}:</h3>
+            {% if sessions %}
+                <ul>
+                {% for entry in sessions %}
+                    <li>
+                        {{ loop.index }}. {{ entry.exercise }} - {{ entry.duration }} min 
+                        <span style="font-size: 0.8em; color: #888;">({{ entry.timestamp.split(' ')[0] }})</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p style="padding-left: 15px; color: #888;">No sessions recorded.</p>
+            {% endif %}
+        {% endfor %}
+
+        <hr>
+
+        <p class="total">Total Time Spent: {{ total_time }} minutes</p>
+        <p class="motivational">{{ motivational_message }}</p>
+
+        <p><a href="{{ url_for('index') }}">← Back to Tracker</a></p>
+    </div>
+</body>
+</html>
