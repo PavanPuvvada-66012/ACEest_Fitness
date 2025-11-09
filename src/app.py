@@ -91,5 +91,4 @@ def view_summary():
                            motivational_message=msg)
 
 if __name__ == '__main__':
-    # You might change the host to '0.0.0.0' when deploying to Minikube/Docker
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
