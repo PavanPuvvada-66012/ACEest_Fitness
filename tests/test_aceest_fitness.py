@@ -1,9 +1,9 @@
+"""Doc String PlaceHolder"""
 import unittest
-import os
 from src.app import app, WORKOUTS
-
+"""Doc String PlaceHolder"""
 class FitnessTrackerTests(unittest.TestCase):
-
+    """Doc String PlaceHolder"""
     # --- Setup and Teardown ---
     @classmethod
     def setUpClass(cls):
@@ -22,7 +22,6 @@ class FitnessTrackerTests(unittest.TestCase):
             WORKOUTS[key] = []
 
     # --- Test Cases for Route Access ---
-    
     def test_1_home_page_access(self):
         """Tests that the main index page loads successfully."""
         response = self.client.get('/', follow_redirects=True)
@@ -36,9 +35,7 @@ class FitnessTrackerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200) 
         # Check for the 'No sessions logged yet!' flash message content
         self.assertIn(b"No sessions logged yet!", response.data)
-
     # --- Test Cases for Data Submission (POST /add) ---
-    
     def test_3_add_valid_workout(self):
         """Tests successful logging of a valid workout session."""
         response = self.client.post(
