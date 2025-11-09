@@ -14,6 +14,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Set Image Tag
+        id: set_tag
+        run: |
+          # 1. Check if the trigger was a Git Tag push
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            # Use the tag name directly (e.g., v1.0.0)
+            VERSION=${{ github.ref_name }}
+          else
+            # If not a tag push (e.g., push to 'main'), use a default tag or commit SHA
+            VERSION=sha-${GITHUB_SHA::7}
+          fi
+          
+          # Output the determined version to be used in subsequent steps
+          echo "DOCKER_IMAGE_TAG=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
