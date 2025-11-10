@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceessfitness-service
+spec:
+  type: NodePort
+  
+  # IMPORTANT: The selector points to the currently live version (STARTING with BLUE)
+  selector:
+    app: aceessfitness
+    tier: frontend
+    version: blue # <-- Initially targets the BLUE environment (V1)
+
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

@@ -1,0 +1,41 @@
+# 1. Kubernetes Deployment (Rolling Update Strategy)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-deployment
+  labels:
+    app: aceessfitness
+spec:
+  # The default strategy is RollingUpdate, but it's good practice to be explicit.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Max number of Pods that can be unavailable during the update (can be a number or percentage)
+      maxUnavailable: 25% 
+      # Max number of Pods that can be created over the desired number of Pods (can be a number or percentage)
+      maxSurge: 25% 
+      
+  # Define how many replicas (pods) you want running
+  replicas: 4 # Higher replica count makes the rolling update more noticeable
+  
+  # Selector ensures the Deployment only manages Pods with the matching labels
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      
+  template:
+    metadata:
+      labels:
+        app: aceessfitness
+        tier: frontend
+    spec:
+      containers:
+      - name: aceessfitness-container
+        # When you want to update, simply change this image tag (e.g., from :v1.0.0 to :v2.0.0)
+        image: pavanpuvvada66012/my-image:v1.2.3
+        
+        # Crucial for Minikube with a locally loaded image
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort: 5000 # The internal port your Flask app listens on

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-deployment
+  labels:
+    app: aceessfitness
+spec:
+  # Define how many replicas (pods) you want running
+  replicas: 1 
+  
+  # Selector ensures the Deployment only manages Pods with the matching labels
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      
+  template:
+    metadata:
+      labels:
+        # These labels MUST match the selector above!
+        app: aceessfitness
+        tier: frontend
+    spec:
+      containers:
+      - name: aceessfitness-container
+        # Replace this with your full image path (e.g., yourusername/aceessfitness:latest)
+        image: localhost/accessfitness:latest
+        
+        # Crucial for Minikube with a locally loaded image
+        imagePullPolicy: IfNotPresent 
+        
+        ports:
+        - containerPort: 5000 # The internal port your Flask app listens on
+        
+---
+# 2. Kubernetes Service
+#    Exposes the Pods to the outside world or other services.
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceessfitness-service
+spec:
+  # NodePort type exposes the service on a port across all cluster nodes (Minikube).
+  type: NodePort 
+  
+  # Selects the Pods to route traffic to (must match the Deployment's Pod labels)
+  selector:
+    app: aceessfitness
+    tier: frontend
+    
+  ports:
+    - protocol: TCP
+      # The port the service itself is exposed on (can be anything, e.g., 80)
+      port: 5000
+      
+      # The port the Service forwards traffic to inside the container (must match containerPort)
+      targetPort: 5000 
+      
+      # Optional: Explicitly set the node port (if omitted, K8s chooses a random one >30000)
+      # nodePort: 30080

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-deployment-canary
+  labels:
+    app: aceessfitness
+    version: canary # Canary version label
+spec:
+  # Start with 1 replica (10% of traffic, assuming 10 total)
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: aceessfitness
+        tier: frontend
+        version: canary
+    spec:
+      containers:
+      - name: aceessfitness-container
+        # Update this to your NEW image version (V2)
+        image: pavanpuvvada66012/my-image:v1.3.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
