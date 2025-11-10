@@ -200,6 +200,7 @@ def progress_tracker():
         return render_template('progress.html', chart_img=None, total_minutes=0)
     # Convert to pandas Series for cleaner plotting preparation
     data_series = pd.Series(totals).sort_index()
+    df = pd.Series(totals).sort_index()
     # Create the Matplotlib figure
     fig = Figure(figsize=(8, 5), dpi=100, facecolor='#FFFFFF')
     chart_colors = ['#2196F3', '#4CAF50', '#FFC107'] # Blue, Green, Yellow
@@ -220,7 +221,7 @@ def progress_tracker():
     # Pylint: disable=invalid-name
     ax2 = fig.add_subplot(122)
     # Filter out categories with 0 minutes for the pie chart
-    pie_data = data_series[data_series > 0]
+    pie_data = df[df > 0]
     # Use the same color scheme, mapped to the existing data
     pie_colors = [
         chart_colors[i] for i, cat in enumerate(WORKOUT_CATEGORIES)
