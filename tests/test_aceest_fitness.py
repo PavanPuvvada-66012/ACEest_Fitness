@@ -11,8 +11,8 @@ from unittest.mock import patch
 # data structures or app logic defined in src.app, even if not explicitly
 # called in the test methods themselves.
 # pylint: disable=unused-import
-import pandas as pd
 import json
+import pandas as pd
 # pylint: enable=unused-import
 
 # Import the Flask application and global data stores
