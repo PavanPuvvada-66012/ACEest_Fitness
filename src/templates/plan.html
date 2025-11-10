@@ -1,18 +1,17 @@
 {% extends "base.html" %}
-
 {% block title %}Workout Plan{% endblock %}
 
 {% block content %}
 <h1 class="display-5 fw-bold mt-4 text-primary text-center">💡 Personalized Workout Plan Guide</h1>
 <hr>
 
-{% for category, exercises in plan_data.items() %}
+{% for title, steps in plan_data.items() %}
     <div class="card p-3 mb-3">
-        <h3 class="fw-bold text-secondary">🔥 {{ category }}</h3>
+        <h3 class="fw-bold text-secondary">🔥 {{ title }}</h3>
         <ul class="list-group list-group-flush">
-            {% for ex in exercises %}
+            {% for step in steps %}
                 <li class="list-group-item text-wrap">
-                    • {{ ex }}
+                    • {{ step }}
                 </li>
             {% endfor %}
         </ul>

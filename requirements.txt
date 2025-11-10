@@ -1,3 +1,4 @@
 pytest==8.4.1
 flask
 matplotlib
+pandas

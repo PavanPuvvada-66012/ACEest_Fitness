@@ -1,18 +1,17 @@
 {% extends "base.html" %}
-
 {% block title %}Diet Guide{% endblock %}
 
 {% block content %}
 <h1 class="display-5 fw-bold mt-4 text-primary text-center">🥗 Nutritional Goal Setting Guide</h1>
 <hr>
 
-{% for goal, foods in diet_plans.items() %}
+{% for goal, meals in diet_data.items() %}
     <div class="card p-3 mb-3">
-        <h3 class="fw-bold text-success">{{ goal }}</h3>
+        <h3 class="fw-bold text-secondary">🎯 {{ goal }}</h3>
         <ul class="list-group list-group-flush">
-            {% for food in foods %}
+            {% for meal in meals %}
                 <li class="list-group-item text-wrap">
-                    • {{ food }}
+                    • {{ meal }}
                 </li>
             {% endfor %}
         </ul>
