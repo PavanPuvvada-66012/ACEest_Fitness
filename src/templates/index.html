@@ -1,13 +1,12 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h2 style="text-align: center; margin-top: 0;">Log a New Session</h2>
+    <form action="{{ url_for('add_workout') }}" method="post" style="padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; background-color: #f8f9fa;">
+        <h3 style="margin-top: 0; color: #495057;">Add New Session</h3>
 
-    <form action="{{ url_for('add_workout') }}" method="post" style="padding: 10px;">
-        
         <div style="margin-bottom: 15px;">
-            <label for="category" style="display: block; margin-bottom: 5px; font-weight: bold;">Select Category:</label>
-            <select name="category" id="category" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            <label for="category" style="display: block; font-weight: bold; margin-bottom: 5px;">Category:</label>
+            <select name="category" id="category" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
                 {% for category in categories %}
                     <option value="{{ category }}" {% if category == 'Workout' %}selected{% endif %}>{{ category }}</option>
                 {% endfor %}
@@ -15,16 +14,16 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label for="exercise" style="display: block; margin-bottom: 5px; font-weight: bold;">Exercise:</label>
-            <input type="text" id="exercise" name="exercise" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            <label for="exercise" style="display: block; font-weight: bold; margin-bottom: 5px;">Exercise:</label>
+            <input type="text" name="exercise" id="exercise" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="duration" style="display: block; margin-bottom: 5px; font-weight: bold;">Duration (min):</label>
-            <input type="number" id="duration" name="duration" required min="1" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        <div style="margin-bottom: 20px;">
+            <label for="duration" style="display: block; font-weight: bold; margin-bottom: 5px;">Duration (min):</label>
+            <input type="number" name="duration" id="duration" required min="1" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
-        <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 48%; margin-right: 2%;">Add Session</button>
-        <a href="{{ url_for('view_summary') }}" style="display: inline-block; text-align: center; padding: 10px 15px; background-color: #007bff; color: white; border-radius: 4px; text-decoration: none; width: 48%; box-sizing: border-box;">View Summary</a>
+        <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">✅ Add Session</button>
+        <a href="{{ url_for('view_summary') }}" style="display: inline-block; padding: 10px 20px; margin-left: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">📋 View Summary</a>
     </form>
 {% endblock %}

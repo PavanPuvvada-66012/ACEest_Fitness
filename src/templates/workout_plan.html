@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2 style="text-align: center; margin-top: 0; color: #495057;">💡 Personalized Workout Plan</h2>
+    
+    <div style="padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+        {% for category, exercises in plan_data.items() %}
+            <h3 style="color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">🔥 {{ category }}</h3>
+            <ul style="list-style-type: none; padding-left: 10px;">
+                {% for ex in exercises %}
+                    <li style="margin-bottom: 8px; font-size: 1.05em; color: #343a40;">• {{ ex }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </div>
+{% endblock %}
