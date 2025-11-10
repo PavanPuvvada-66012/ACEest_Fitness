@@ -1,21 +1,22 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
+
+{% block title %}Progress Tracker{% endblock %}
 
 {% block content %}
-    <h2 style="text-align: center; margin-top: 0; color: #495057;">📈 Personal Progress Tracker (Minutes Logged)</h2>
-    
-    <div style="text-align: center; margin-top: 20px; background-color: white; padding: 20px; border-radius: 8px;">
-        {% if chart_image %}
-            <div style="margin-bottom: 20px;">
-                <img src="data:image/png;base64,{{ chart_image }}" alt="Workout Progress Charts" style="max-width: 100%; height: auto;">
-            </div>
-            
-            <p style="font-size: 1.2em; font-weight: bold; color: #dc3545; padding: 10px 0; border-top: 1px dashed #ccc;">
-                Total Training Time Logged: {{ total_minutes }} minutes
-            </p>
-        {% else %}
-            <p style="text-align: center; font-style: italic; color: #888; margin-top: 40px; font-size: 1.1em;">
-                No workout data logged yet. Log a session to see your progress!
-            </p>
-        {% endif %}
-    </div>
+<h1 class="display-5 fw-bold mt-4 text-primary text-center">📈 Personal Progress Tracker</h1>
+<p class="text-muted mb-4 text-center">Visualization of your logged workout time distribution.</p>
+<hr>
+
+<div class="card p-4 text-center">
+    {% if plot_data %}
+        <p class="h5 fw-bold text-danger mb-4">LIFETIME TOTAL: {{ total_minutes }} minutes logged across all categories.</p>
+        <img src="data:image/png;base64,{{ plot_data }}" class="img-fluid border rounded" alt="Workout Progress Charts">
+    {% else %}
+        <div class="alert alert-info py-5">
+            <h4 class="alert-heading">No Data Yet!</h4>
+            <p>No workout data logged yet. Log a session to see your progress!</p>
+            <a href="{{ url_for('log_workouts') }}" class="btn btn-success mt-2">Log a Workout Now</a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
