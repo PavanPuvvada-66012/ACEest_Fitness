@@ -48,14 +48,12 @@ def calculate_metrics(weight_kg, height_cm, age, gender):
         bmr = 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
     else: # Assuming Female (F)
         bmr = 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
-        
     return bmi, bmr
 
 def calculate_calories(category, duration_min, weight_kg):
     """Calculates estimated calories burned."""
     # Formula: (MET * 3.5 * weight_kg / 200) * duration_min
     met = MET_CONSTANTS.get(category, 5) # Default MET is 5
-    
     calories = (met * 3.5 * weight_kg / 200) * duration_min
     return calories
 
@@ -74,28 +72,22 @@ def index():
         name = request.form['name']
         regn_id = request.form['regn_id']
         gender = request.form['gender'].upper()
-        
         # Use a list to check for emptyness, as requested in original logic
         if not all([name, regn_id, gender]):
             flash("Please fill in all user information fields.", 'danger')
             return redirect(url_for('index'))
-            
         try:
             # Type conversion and validation
             age = int(request.form['age'])
             height_cm = float(request.form['height'])
             weight_kg = float(request.form['weight'])
-
             if gender not in ["M", "F"]:
-                 flash("Gender must be 'M' or 'F'.", 'danger')
-                 return redirect(url_for('index'))
-            
+                flash("Gender must be 'M' or 'F'.", 'danger')
+                return redirect(url_for('index'))
             if not all([age > 0, height_cm > 0, weight_kg > 0]):
                 flash("Age, Height, and Weight must be positive numbers.", 'danger')
                 return redirect(url_for('index'))
-
             bmi, bmr = calculate_metrics(weight_kg, height_cm, age, gender)
-
             user_info.clear() # Clear existing info
             user_info.update({
                 "name": name, 
@@ -107,21 +99,16 @@ def index():
                 "bmi": f"{bmi:.1f}", 
                 "bmr": f"{bmr:.0f}"
             })
-            
             flash(
                 f"User info saved! BMI={user_info['bmi']}, BMR={user_info['bmr']} kcal/day", 
                 'success'
             )
             return redirect(url_for('index'))
-
         except ValueError:
             flash("Invalid input. Age, Height, and Weight must be numbers.", 'danger')
         except Exception as err:
             flash(f"An unexpected error occurred: {err}", 'danger')
-        
     return render_template('index.html', user_info=user_info)
-
-
 # -----------------------------------------------------------
 ## 2. Log Workouts Page (The 'add' Route)
 # -----------------------------------------------------------
@@ -146,47 +133,37 @@ def add_workout():
         except ValueError:
             flash("Duration must be a positive whole number.", 'danger')
             return redirect(url_for('add_workout'))
-            
         if category not in WORKOUT_CATEGORIES:
-             flash("Invalid workout category selected.", 'danger')
-             return redirect(url_for('add_workout'))
+            flash("Invalid workout category selected.", 'danger')
+            return redirect(url_for('add_workout'))
 
         # Get weight from user_info, default to 70kg if not set
-        weight = user_info.get("weight", 70.0) 
+        weight = user_info.get("weight", 70.0)
         calories = calculate_calories(category, duration, weight)
-        
         entry = {
             "exercise": exercise, 
             "duration": duration, 
             "calories": calories, 
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        
         workouts_log[category].append(entry)
-        
         flash(
             f"Added **{exercise}** ({duration} min) to {category} successfully! 💪", 
             'success'
         )
-
         return redirect(url_for('add_workout'))
-
     return render_template('add_workout.html', categories=WORKOUT_CATEGORIES)
-
-
 # -----------------------------------------------------------
 ## 3. Summary Page
 # -----------------------------------------------------------
-
 @APP.route('/summary')
 def summary():
     """Calculates and displays the summary of all logged workouts."""
     # Use sum with a generator expression for cleaner calculation
     total_time = sum(
-        sum(entry['duration'] for entry in sessions) 
+        sum(entry['duration'] for entry in sessions)
         for sessions in workouts_log.values()
     )
-    
     # Simple motivation logic
     if total_time == 0:
         motivation = "Time to start moving!"
@@ -202,37 +179,31 @@ def summary():
     summary_data = {
         category: sessions for category, sessions in workouts_log.items()
     }
-    
-    return render_template('summary.html', 
-                           summary_data=summary_data, 
+    return render_template('summary.html',
+                           summary_data=summary_data,
                            total_time=total_time,
                            motivation=motivation,
                            alert_class=alert_class)
-
 # -----------------------------------------------------------
 ## 4. Progress Tracker (Chart Generation)
 # -----------------------------------------------------------
-
 @APP.route('/progress')
 def progress_tracker():
     """Generates and embeds workout progress charts."""
     # Calculate total minutes per category
     totals = {
-        cat: sum(entry['duration'] for entry in sessions) 
+        cat: sum(entry['duration'] for entry in sessions)
         for cat, sessions in workouts_log.items()
     }
     total_minutes = sum(totals.values())
-
     if total_minutes == 0:
         return render_template('progress.html', chart_img=None, total_minutes=0)
-
     # Convert to pandas Series for cleaner plotting preparation
     data_series = pd.Series(totals).sort_index()
-    
+    df = pd.Series(totals).sort_index()
     # Create the Matplotlib figure
     fig = Figure(figsize=(8, 5), dpi=100, facecolor='#FFFFFF')
     chart_colors = ['#2196F3', '#4CAF50', '#FFC107'] # Blue, Green, Yellow
-
     # --- Subplot 1: Bar Chart ---
     # Pylint: disable=invalid-name, multiple-statements
     ax1 = fig.add_subplot(121)
@@ -246,46 +217,38 @@ def progress_tracker():
     ax1.spines['top'].set_visible(False)
     ax1.grid(axis='y', linestyle='--', alpha=0.6)
     # Pylint: enable=invalid-name, multiple-statements
-    
     # --- Subplot 2: Pie Chart ---
     # Pylint: disable=invalid-name
     ax2 = fig.add_subplot(122)
     # Filter out categories with 0 minutes for the pie chart
-    pie_data = data_series[data_series > 0]
-    
+    pie_data = df[df > 0]
     # Use the same color scheme, mapped to the existing data
     pie_colors = [
-        chart_colors[i] for i, cat in enumerate(WORKOUT_CATEGORIES) 
+        chart_colors[i] for i, cat in enumerate(WORKOUT_CATEGORIES)
         if totals[cat] > 0
     ]
-    
     ax2.pie(
-        pie_data.values, 
-        labels=pie_data.index, 
-        autopct="%1.1f%%", 
-        startangle=90, 
-        colors=pie_colors, 
+        pie_data.values,
+        labels=pie_data.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=pie_colors,
         wedgeprops={"edgecolor":'white', 'linewidth': 1},
         textprops={'fontsize': 8}
     )
     ax2.set_title("Workout Distribution (%)", fontsize=10)
     ax2.axis('equal')
     # Pylint: enable=invalid-name
-
     fig.tight_layout(pad=2.0)
-    
     # Convert plot to PNG image (in-memory)
     buf = io.BytesIO()
     fig.savefig(buf, format="png")
     data_uri = base64.b64encode(buf.getbuffer()).decode("ascii")
     chart_img = f"data:image/png;base64,{data_uri}"
-
     return render_template('progress.html', chart_img=chart_img, total_minutes=total_minutes)
-
 # -----------------------------------------------------------
 ## 5. Static Pages (Workout Plan and Diet Guide)
 # -----------------------------------------------------------
-
 @APP.route('/plan')
 def workout_plan():
     """Renders the static workout plan guide."""
@@ -308,7 +271,6 @@ def workout_plan():
         ]
     }
     return render_template('plan.html', plan_data=plan_data)
-
 @APP.route('/diet')
 def diet_guide():
     """Renders the static diet guide."""
@@ -327,12 +289,9 @@ def diet_guide():
         ]
     }
     return render_template('diet.html', diet_data=diet_data)
-
-
 # -----------------------------------------------------------
 ## 6. Run Application
 # -----------------------------------------------------------
-
 if __name__ == '__main__':
     # Use APP instead of app for Pylint compliance
     APP.run(debug=True, host='0.0.0.0', port=5000)

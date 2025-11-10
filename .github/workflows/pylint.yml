@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install Flask pylint pytest
+        pip install Flask pylint pytest matplotlib pandas
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
