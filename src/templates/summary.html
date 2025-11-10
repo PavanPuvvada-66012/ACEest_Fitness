@@ -1,40 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Workout Summary</title>
-    <style>
-        body { font-family: 'Arial', sans-serif; margin: 20px; background-color: #f8f9fa; color: #343a40; }
-        .summary-box { max-width: 650px; margin: 0 auto; padding: 25px; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-        h2 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-        .category-header { color: #28a745; margin-top: 20px; font-size: 1.1em; border-left: 5px solid #007bff; padding-left: 10px; }
-        .entry { margin-left: 20px; margin-bottom: 5px; }
-        .no-entry { font-style: italic; color: #888; margin-left: 20px; }
-        .total { font-weight: bold; color: #dc3545; font-size: 1.3em; margin-top: 25px; border-top: 1px solid #ccc; padding-top: 15px; }
-        .motivational { color: #6c757d; font-style: italic; margin-top: 10px; font-size: 1.1em; }
-    </style>
-</head>
-<body>
-    <div class="summary-box">
-        <h2>📊 Weekly Session Summary</h2>
+{% extends "base.html" %}
 
-        {% for category in categories %}
-            <h3 class="category-header">{{ category }}:</h3>
-            {% if workouts_log[category] %}
-                {% for entry in workouts_log[category] %}
-                    <p class="entry">• **{{ entry['exercise'] }}** - {{ entry['duration'] }} min ({{ entry['timestamp'].split(' ')[0] }})</p>
-                {% endfor %}
-            {% else %}
-                <p class="no-entry">No sessions recorded.</p>
-            {% endif %}
+{% block title %}Workout Summary{% endblock %}
+
+{% block content %}
+<h1 class="display-5 fw-bold mt-4 text-primary text-center">📋 Weekly Session Summary</h1>
+<hr>
+
+<div class="row">
+    <div class="col-12">
+        {% for category, sessions in workouts.items() %}
+            <div class="card p-3 mb-3">
+                <h3 class="fw-bold text-success">{{ category }}:</h3>
+                <ul class="list-group list-group-flush">
+                    {% if sessions %}
+                        {% for entry in sessions | reverse %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>• **{{ entry.exercise }}** - {{ entry.duration }} min</span>
+                                <span class="badge bg-light text-secondary">{{ entry.timestamp }}</span>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item text-muted fst-italic">No sessions recorded.</li>
+                    {% endif %}
+                </ul>
+            </div>
         {% endfor %}
-
-        <hr style="margin: 20px 0;">
-
-        <p class="total">Total Training Time Logged: {{ total_time }} minutes</p>
-        <p class="motivational">{{ motivation_msg }}</p>
-
-        <p style="margin-top: 25px;"><a href="{{ url_for('index') }}" style="color: #007bff; text-decoration: none;">← Back to Tracker</a></p>
     </div>
-</body>
-</html>
+</div>
+
+<div class="alert alert-danger p-3 mt-4 text-center">
+    <p class="h4 mb-1">Total Training Time Logged: **{{ total_time }}** minutes</p>
+    <p class="mb-0 text-muted fst-italic">{{ motivation }}</p>
+</div>
+{% endblock %}

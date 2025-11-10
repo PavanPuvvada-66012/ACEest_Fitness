@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Log Workouts{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="display-5 fw-bold mt-4 text-success">ACEest Session Logger</h1>
+    <p class="text-muted mb-4">Track your progress with precision.</p>
+</div>
+
+<div class="card p-4 mx-auto" style="max-width: 550px;">
+    <h5 class="card-title text-center text-primary mb-3">Add New Session</h5>
+    <form method="POST" action="{{ url_for('log_workouts') }}">
+        <div class="mb-3">
+            <label for="category" class="form-label fw-bold">Category:</label>
+            <select class="form-select" id="category" name="category" required>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if cat == 'Workout' %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="exercise" class="form-label fw-bold">Exercise Name:</label>
+            <input type="text" class="form-control" id="exercise" name="exercise" placeholder="e.g., Running, Squats, Stretching" required>
+        </div>
+        <div class="mb-3">
+            <label for="duration" class="form-label fw-bold">Duration (min):</label>
+            <input type="number" class="form-control" id="duration" name="duration" placeholder="e.g., 30" required min="1">
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">✅ ADD SESSION</button>
+            <a href="{{ url_for('view_summary') }}" class="btn btn-outline-primary btn-lg">📋 VIEW SUMMARY</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

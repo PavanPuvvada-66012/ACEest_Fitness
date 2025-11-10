@@ -1,16 +1,21 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
+
+{% block title %}Diet Guide{% endblock %}
 
 {% block content %}
-    <h2 style="text-align: center; margin-top: 0; color: #495057;">🥗 Best Diet Guide for Fitness Goals</h2>
-    
-    <div style="padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
-        {% for goal, foods in diet_plans.items() %}
-            <h3 style="color: #28a745; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">{{ goal }} Plan:</h3>
-            <ul style="list-style-type: none; padding-left: 10px;">
-                {% for food in foods %}
-                    <li style="margin-bottom: 8px; font-size: 1.05em; color: #343a40;">• {{ food }}</li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
+<h1 class="display-5 fw-bold mt-4 text-primary text-center">🥗 Nutritional Goal Setting Guide</h1>
+<hr>
+
+{% for goal, foods in diet_plans.items() %}
+    <div class="card p-3 mb-3">
+        <h3 class="fw-bold text-success">{{ goal }}</h3>
+        <ul class="list-group list-group-flush">
+            {% for food in foods %}
+                <li class="list-group-item text-wrap">
+                    • {{ food }}
+                </li>
+            {% endfor %}
+        </ul>
     </div>
+{% endfor %}
 {% endblock %}

@@ -1,6 +1,7 @@
 import unittest
 import json
-# Import the Flask app instance and the data store from your app.py
+# Assuming 'app.py' is in the parent directory when running the test suite
+# If running 'python -m unittest tests.test_aceest_fitness', this import works.
 from src.app import app, workouts_log 
 
 class FitnessTrackerTests(unittest.TestCase):
@@ -34,8 +35,8 @@ class FitnessTrackerTests(unittest.TestCase):
         response = self.post_workout(exercise="Squats", duration=20, category="Workout")
         
         self.assertEqual(response.status_code, 200)
-        # Check if the flash message confirms success
-        self.assertIn(b'Added Squats (20 min) to Workout successfully!', response.data)
+        # Check if the flash message confirms success (HTML safe filter uses bold tags)
+        self.assertIn(b'Added **Squats** (20 min) to Workout successfully!', response.data)
         # Check if the data was logged correctly
         self.assertEqual(len(workouts_log["Workout"]), 1)
         self.assertEqual(workouts_log["Workout"][0]["duration"], 20)
@@ -50,8 +51,6 @@ class FitnessTrackerTests(unittest.TestCase):
 
     def test_add_session_invalid_duration(self):
         """Tests submission with non-numeric duration."""
-        # Flask's request.form automatically processes fields as strings, 
-        # but the Python code will raise an error when converting 'ten' to int.
         response = self.app.post('/add', data={'exercise': 'Run', 'duration': 'ten', 'category': 'Workout'}, follow_redirects=True)
         
         self.assertIn(b'Duration must be a positive whole number.', response.data)
@@ -73,10 +72,10 @@ class FitnessTrackerTests(unittest.TestCase):
         
         self.assertEqual(response.status_code, 200)
         # Check total time is 0
-        self.assertIn(b'Total Training Time Logged: 0 minutes', response.data)
+        self.assertIn(b'Total Training Time Logged: **0** minutes', response.data)
         # Check motivational message for no time logged
-        self.assertIn(b'No sessions logged yet. Time to start moving!', response.data)
-        # Check for the "No sessions recorded" message
+        self.assertIn(b'Time to start moving!', response.data)
+        # Check for the "No sessions recorded" message in any category
         self.assertIn(b'No sessions recorded.', response.data)
 
     def test_summary_calculation(self):
@@ -86,32 +85,29 @@ class FitnessTrackerTests(unittest.TestCase):
         response = self.app.get('/summary')
         
         # Total time should be 15 + 45 = 60 minutes
-        self.assertIn(b'Total Training Time Logged: 60 minutes', response.data)
+        self.assertIn(b'Total Training Time Logged: **60** minutes', response.data)
         # Check motivational message for high time
-        self.assertIn(b'Excellent dedication! Keep up the great work', response.data)
+        self.assertIn(b'Excellent dedication! Keep up the great work.', response.data)
 
     def test_summary_categorization(self):
         """Tests if workouts are displayed under the correct categories."""
-        
-        # 1. Log data into specific categories
         self.post_workout(exercise="Stretching", duration=5, category="Cool-down")
         self.post_workout(exercise="Jogging", duration=10, category="Warm-up")
         
         response = self.app.get('/summary')
         
-        # --- 2. Positive Content Checks (Ensures entries are present) ---
+        # --- Positive Content Checks (Ensures entries are present) ---
         # Check Warm-up section entry (using the bolded format)
         self.assertIn(b'**Jogging** - 10 min', response.data)
         
         # Check Cool-down section entry (using the bolded format)
         self.assertIn(b'**Stretching** - 5 min', response.data)
         
-        # Check Workout section empty content (This avoids the fragile whitespace match)
+        # Check Workout section is empty and reports correctly (simplified check)
         self.assertIn(b'Workout:</h3>', response.data)
-        self.assertIn(b'No sessions recorded.</p>', response.data) 
+        self.assertIn(b'No sessions recorded.</li>', response.data) 
         
-        # --- 3. Order Check (Ensures logical categorization is correct) ---
-        # Get the starting index of the category headers in the raw HTML data
+        # --- Order Check (Ensures logical categorization is correct) ---
         warmup_header_pos = response.data.find(b'Warm-up:')
         workout_header_pos = response.data.find(b'Workout:')
         cooldown_header_pos = response.data.find(b'Cool-down:')
@@ -120,14 +116,16 @@ class FitnessTrackerTests(unittest.TestCase):
         self.assertTrue(warmup_header_pos < workout_header_pos)
         self.assertTrue(workout_header_pos < cooldown_header_pos)
 
+
     def test_summary_motivation_low_time(self):
         """Tests for the low dedication message (< 60 min)."""
         self.post_workout(duration=30) # 30 min
         self.post_workout(duration=15) # 15 min
         response = self.app.get('/summary')
         
-        self.assertIn(b'Total Training Time Logged: 45 minutes', response.data)
-        self.assertIn(b"Nice effort! You&#39;re building consistency.", response.data)
+        self.assertIn(b'Total Training Time Logged: **45** minutes', response.data)
+        # FIX: Checking for HTML-encoded apostrophe
+        self.assertIn(b"Nice effort! You&#39;re building consistency.", response.data) 
 
 # ----------------------------------------------------------------------
 # --- 3. Progress Tracker Tests (Chart/Data Visualization) ---
@@ -140,7 +138,7 @@ class FitnessTrackerTests(unittest.TestCase):
         # Should contain the "no data" message
         self.assertIn(b'No workout data logged yet. Log a session to see your progress!', response.data)
         # Should NOT contain the image tag prefix
-        self.assertNotIn(b'<img src="data:image/png;base64,', response.data)
+        self.assertNotIn(b'data:image/png;base64,', response.data)
 
     def test_progress_tracker_with_data(self):
         """Tests progress tracker renders an image when data is present."""
@@ -149,11 +147,11 @@ class FitnessTrackerTests(unittest.TestCase):
         
         self.assertEqual(response.status_code, 200)
         # Should contain the image tag prefix (indicating chart was generated)
-        self.assertIn(b'<img src="data:image/png;base64,', response.data)
+        self.assertIn(b'data:image/png;base64,', response.data)
         # Should NOT contain the "no data" message
         self.assertNotIn(b'No workout data logged yet. Log a session to see your progress!', response.data)
         # Check total time rendering
-        self.assertIn(b'Total Training Time Logged: 10 minutes', response.data)
+        self.assertIn(b'LIFETIME TOTAL: 10 minutes logged', response.data)
 
 # ----------------------------------------------------------------------
 # --- 4. Static Page & Navigation Tests ---
@@ -163,19 +161,19 @@ class FitnessTrackerTests(unittest.TestCase):
         response = self.app.get('/plan')
         
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Personalized Workout Plan', response.data)
-        # Check for content from the plan data
-        self.assertIn(b'Strength Workout (45-60 min)', response.data)
-        self.assertIn(b'Push-ups (3 sets of 10-15)', response.data)
-
+        self.assertIn(b'Personalized Workout Plan Guide', response.data)
+        # Check for content from the plan data (FIXED: changed '&' to '&amp;')
+        self.assertIn(b'Strength &amp; Cardio (45-60 min)', response.data)
+        self.assertIn(b'Push-ups (3 sets of 10-15) - Upper body strength.', response.data)
+        
     def test_diet_guide_content(self):
         """Tests if the diet guide page renders with expected content."""
         response = self.app.get('/diet')
         
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Best Diet Guide for Fitness Goals', response.data)
+        self.assertIn(b'Nutritional Goal Setting Guide', response.data)
         # Check for content from the diet data
-        self.assertIn(b'Weight Loss Plan:', response.data)
+        self.assertIn(b'Muscle Gain Focus (High Protein)', response.data)
         self.assertIn(b'Breakfast: 3 Egg Omelet, Spinach, Whole-wheat Toast', response.data)
 
     def test_navigation_links(self):
