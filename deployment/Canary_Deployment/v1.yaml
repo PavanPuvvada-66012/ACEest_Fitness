@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-deployment-stable
+  labels:
+    app: aceessfitness
+    version: stable # Stable version label
+spec:
+  # Start with 9 replicas (90% of traffic, assuming 10 total)
+  replicas: 9 
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: aceessfitness
+        tier: frontend
+        version: stable
+    spec:
+      containers:
+      - name: aceessfitness-container
+        # Use your current, stable image version (V1)
+        image: localhost/accessfitness:v1-stable
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000

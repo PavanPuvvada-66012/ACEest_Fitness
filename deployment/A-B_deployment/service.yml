@@ -1,0 +1,19 @@
+# Kubernetes Service
+# Exposes the Pods and routes traffic to BOTH A and B Deployments.
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceessfitness-service
+spec:
+  type: NodePort 
+  
+  # This selector is now BROADER: it selects BOTH stable and candidate pods
+  # as long as they have the 'app' and 'tier' labels.
+  selector:
+    app: aceessfitness
+    tier: frontend # Note: We omit 'version' here to match both Deployments
+    
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

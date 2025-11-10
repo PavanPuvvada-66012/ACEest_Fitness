@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-deployment-green
+  labels:
+    app: aceessfitness
+    version: green # <-- Crucial version label
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      version: shadow
+  template:
+    metadata:
+      labels:
+        app: aceessfitness
+        tier: frontend
+        version: shadow
+    spec:
+      containers:
+      - name: aceessfitness-container
+        # Update this to your NEW image version (V2)
+        image: pavanpuvvada66012/my-image:v1.3.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000

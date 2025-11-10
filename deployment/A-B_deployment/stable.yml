@@ -1,0 +1,57 @@
+# Deployment for Version A (Stable)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-a-deployment
+  labels:
+    app: aceessfitness
+    version: stable
+spec:
+  replicas: 1 # Scale this up to 10 for 90% traffic, for example
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      version: stable # Crucial specific selector for A
+  template:
+    metadata:
+      labels:
+        app: aceessfitness
+        tier: frontend
+        version: stable # Label for A
+    spec:
+      containers:
+      - name: aceessfitness-container
+        image: pavanpuvvada66012/my-image:v1.2.3
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort: 5000
+---
+# Deployment for Version B (Candidate/New)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceessfitness-b-deployment
+  labels:
+    app: aceessfitness
+    version: candidate
+spec:
+  replicas: 1 # Scale this up to 1 for 10% traffic (if A is 10 replicas)
+  selector:
+    matchLabels:
+      app: aceessfitness
+      tier: frontend
+      version: candidate # Crucial specific selector for B
+  template:
+    metadata:
+      labels:
+        app: aceessfitness
+        tier: frontend
+        version: candidate # Label for B
+    spec:
+      containers:
+      - name: aceessfitness-container
+        image: pavanpuvvada66012/my-image:v1.3.0 # <-- NEW IMAGE TAG
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort: 5000
