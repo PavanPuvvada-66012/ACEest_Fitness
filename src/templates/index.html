@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}User Info{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <h1 class="display-5 fw-bold mt-4 text-primary text-center">📝 User Information</h1>
+        <hr>
+        <div class="card p-4 mb-4">
+            <form method="POST" action="{{ url_for('index') }}">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required value="{{ user_info.name if user_info.name }}">
+                </div>
+                <div class="mb-3">
+                    <label for="regn_id" class="form-label">Regn-ID:</label>
+                    <input type="text" class="form-control" id="regn_id" name="regn_id" required value="{{ user_info.regn_id if user_info.regn_id }}">
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label for="age" class="form-label">Age:</label>
+                        <input type="number" class="form-control" id="age" name="age" required value="{{ user_info.age if user_info.age }}">
+                    </div>
+                    <div class="col-4">
+                        <label for="gender" class="form-label">Gender (M/F):</label>
+                        <input type="text" class="form-control" id="gender" name="gender" required value="{{ user_info.gender if user_info.gender }}">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-6">
+                        <label for="height" class="form-label">Height (cm):</label>
+                        <input type="number" step="0.1" class="form-control" id="height" name="height" required value="{{ user_info.height if user_info.height }}">
+                    </div>
+                    <div class="col-6">
+                        <label for="weight" class="form-label">Weight (kg):</label>
+                        <input type="number" step="0.1" class="form-control" id="weight" name="weight" required value="{{ user_info.weight if user_info.weight }}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3">Save Info</button>
+            </form>
+        </div>
+        
+        {% if user_info %}
+        <div class="alert alert-info p-3 mt-4 text-center">
+            <p class="h5 mb-1">Current Metrics</p>
+            <p class="mb-0">BMI: <strong>{{ user_info.bmi }}</strong> | BMR: <strong>{{ user_info.bmr }}</strong> kcal/day</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

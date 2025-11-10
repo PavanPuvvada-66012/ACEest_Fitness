@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Workout Summary{% endblock %}
 
 {% block content %}
@@ -8,15 +7,15 @@
 
 <div class="row">
     <div class="col-12">
-        {% for category, sessions in workouts.items() %}
+        {% for category, sessions in summary_data.items() %}
             <div class="card p-3 mb-3">
                 <h3 class="fw-bold text-success">{{ category }}:</h3>
                 <ul class="list-group list-group-flush">
                     {% if sessions %}
-                        {% for entry in sessions | reverse %}
+                        {% for entry in sessions %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>• **{{ entry.exercise }}** - {{ entry.duration }} min</span>
-                                <span class="badge bg-light text-secondary">{{ entry.timestamp }}</span>
+                                <span>• <strong>{{ entry.exercise }}</strong> - {{ entry.duration }} min | {{ "%.1f" | format(entry.calories) }} kcal</span>
+                                <span class="badge bg-light text-secondary">{{ entry.timestamp.split(' ')[0] }}</span>
                             </li>
                         {% endfor %}
                     {% else %}
@@ -28,8 +27,8 @@
     </div>
 </div>
 
-<div class="alert alert-danger p-3 mt-4 text-center">
-    <p class="h4 mb-1">Total Training Time Logged: **{{ total_time }}** minutes</p>
+<div class="alert alert-{{ alert_class }} p-3 mt-4 text-center">
+    <p class="h4 mb-1">Total Training Time Logged: <strong>{{ total_time }}</strong> minutes</p>
     <p class="mb-0 text-muted fst-italic">{{ motivation }}</p>
 </div>
 {% endblock %}
