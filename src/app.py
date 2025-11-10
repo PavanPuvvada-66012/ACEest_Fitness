@@ -3,59 +3,70 @@ from datetime import datetime
 import io
 import base64
 import matplotlib
-# --- ADD THESE TWO LINES ---
-matplotlib.use('Agg') # Set the backend to Agg
+matplotlib.use('Agg') # CRITICAL for Matplotlib in a multi-threaded web environment (e.g., Flask)
 import matplotlib.pyplot as plt
-# ---------------------------
-from flask import Flask, render_template, request, redirect, url_for, flash
+
 app = Flask(__name__)
-app.secret_key = 'a_new_secret_key_for_flask_app_v2'
+# A secret key is required for flash messages
+app.secret_key = 'aceest_fitness_secret_key_v3' 
 
-# --- DATA STORES ---
-# In-memory storage for logged workouts
-workouts_log = []
-CATEGORIES = ["Warm-up", "Workout", "Cool-down"]
+# --- Data Store (In-memory storage) ---
+# Centralized storage mimicking the self.workouts dictionary
+workouts_log = {"Warm-up": [], "Workout": [], "Cool-down": []}
+CATEGORIES = list(workouts_log.keys())
 
-# Static data for the Workout Chart Tab
-WORKOUT_CHART_DATA = {
-    "Warm-up": ["5 min Jog", "Jumping Jacks", "Arm Circles", "Leg Swings", "Dynamic Stretching"],
-    "Workout": ["Push-ups", "Squats", "Plank", "Lunges", "Burpees", "Crunches"],
-    "Cool-down": ["Slow Walking", "Static Stretching", "Deep Breathing", "Yoga Poses"]
+# Static data for the Workout Plan Tab
+WORKOUT_PLAN_DATA = {
+    "Warm-up (5-10 min)": ["5 min light cardio (Jog/Cycle)", "Jumping Jacks (30 reps)", "Arm Circles (15 Fwd/Bwd)"],
+    "Strength Workout (45-60 min)": ["Push-ups (3 sets of 10-15)", "Squats (3 sets of 15-20)", "Plank (3 sets of 60 seconds)", "Lunges (3 sets of 10/leg)"],
+    "Cool-down (5 min)": ["Slow Walking", "Static Stretching (Hold 30s each)", "Deep Breathing Exercises"]
 }
 
-# Static data for the Diet Chart Tab
-DIET_CHART_DATA = {
-    "Weight Loss": ["Oatmeal with Fruits", "Grilled Chicken Salad", "Vegetable Soup", "Brown Rice & Veggies"],
-    "Muscle Gain": ["Egg Omelet", "Chicken Breast", "Quinoa & Beans", "Protein Shake", "Greek Yogurt with Nuts"],
-    "Endurance": ["Banana & Peanut Butter", "Whole Grain Pasta", "Sweet Potatoes", "Salmon & Avocado", "Trail Mix"]
+# Static data for the Diet Guide Tab
+DIET_GUIDE_DATA = {
+    "🎯 Weight Loss": ["Breakfast: Oatmeal with Berries", "Lunch: Grilled Chicken/Tofu Salad", "Dinner: Vegetable Soup with Lentils"],
+    "💪 Muscle Gain": ["Breakfast: 3 Egg Omelet, Spinach, Whole-wheat Toast", "Lunch: Chicken Breast, Quinoa, and Steamed Veggies", "Post-Workout: Protein Shake, Greek Yogurt"],
+    "🏃 Endurance Focus": ["Pre-Workout: Banana & Peanut Butter", "Lunch: Whole Grain Pasta with Light Sauce", "Dinner: Salmon & Avocado Salad"]
 }
 # --------------------
 
-# --- UTILITY: CHART GENERATOR ---
+# --- Utility: Chart Generator ---
 def generate_charts_base64():
-    """Generates two Matplotlib charts (Bar and Pie) and returns them as base64 images."""
-    # 1. Aggregate Data
-    totals = {cat: sum(entry['duration'] for entry in workouts_log if entry['category'] == cat) for cat in CATEGORIES}
-    categories = list(totals.keys())
+    """Generates Matplotlib charts and returns them as a single base64 image string."""
+    
+    # 1. Process data
+    totals = {cat: sum(entry['duration'] for entry in sessions) for cat, sessions in workouts_log.items()}
     values = list(totals.values())
     
+    # Return None if no workouts logged
     if sum(values) == 0:
-        return None # Return no image data if no workouts logged
+        return None
+
+    categories = list(totals.keys())
+    colors = ["#007bff", "#28a745", "#ffc107"] # Blue, Green, Yellow
 
     # 2. Setup Figure
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.5, 4.5), dpi=100, facecolor='white')
     
-    # --- Bar Chart ---
-    colors = ["#007bff", "#28a745", "#ffc107"]
+    # --- Subplot 1: Bar Chart (Time Spent) ---
     ax1.bar(categories, values, color=colors)
-    ax1.set_title("Time Spent per Category")
-    ax1.set_ylabel("Minutes")
+    ax1.set_title("Time Spent per Category (Min)", fontsize=10)
+    ax1.set_ylabel("Total Minutes", fontsize=8)
+    ax1.tick_params(axis='x', labelsize=8)
+    ax1.tick_params(axis='y', labelsize=8)
+    ax1.grid(axis='y', linestyle='--', alpha=0.7)
 
-    # --- Pie Chart ---
-    ax2.pie(values, labels=categories, autopct="%1.1f%%", startangle=90, colors=colors)
-    ax2.set_title("Workout Distribution")
+    # --- Subplot 2: Pie Chart (Distribution) ---
+    pie_labels = [c for c, v in zip(categories, values) if v > 0]
+    pie_values = [v for v in values if v > 0]
+    pie_colors = [colors[i] for i, v in enumerate(values) if v > 0]
+    
+    ax2.pie(pie_values, labels=pie_labels, autopct="%1.1f%%", startangle=90, colors=pie_colors,
+                wedgeprops={"edgecolor": "black", 'linewidth': 0.5}, textprops={'fontsize': 8})
+    ax2.set_title("Workout Distribution", fontsize=10)
+    ax2.axis('equal') 
 
-    plt.tight_layout()
+    plt.tight_layout(pad=2.0)
     
     # 3. Save to In-Memory Buffer (BytesIO)
     buffer = io.BytesIO()
@@ -72,7 +83,7 @@ def generate_charts_base64():
 
 @app.route('/')
 def index():
-    """Renders the main workout logging form."""
+    """Log Workouts Tab"""
     return render_template('index.html', categories=CATEGORIES, current_tab='log')
 
 @app.route('/add', methods=['POST'])
@@ -91,66 +102,65 @@ def add_workout():
         if duration <= 0:
              raise ValueError
     except ValueError:
-        flash('Duration must be a positive number.', 'error')
+        flash('Duration must be a positive whole number.', 'error')
         return redirect(url_for('index'))
 
     new_entry = {
-        "category": category,
         "exercise": exercise,
         "duration": duration,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
-    workouts_log.append(new_entry)
+    workouts_log[category].append(new_entry)
 
-    flash(f"Added {exercise} ({duration} min) to {category} successfully!", 'success')
+    flash(f"Added {exercise} ({duration} min) to {category} successfully! 💪", 'success')
     return redirect(url_for('index'))
 
 @app.route('/summary')
 def view_summary():
     """Renders the summary page."""
-    categorized_workouts = {cat: [] for cat in CATEGORIES}
-    total_time = 0
+    total_time = sum(sum(entry['duration'] for entry in sessions) for sessions in workouts_log.values())
     
-    for entry in workouts_log:
-        categorized_workouts[entry['category']].append(entry)
-        total_time += entry['duration']
-
+    # Motivational message logic
     if total_time == 0:
-        motivation_msg = "Good start! Keep moving" # Expected by test_summary_empty
+        motivation_msg = "No sessions logged yet. Time to start moving!"
     elif total_time < 60:
-        motivation_msg = "Nice effort! You're building consistency"
+        motivation_msg = "Nice effort! You're building consistency."
     else: # total_time >= 60
-        motivation_msg = "Excellent dedication! Keep up the great work" # Expected by test_summary_calculation & test_summary_motivation_high_time
-
+        motivation_msg = "Excellent dedication! Keep up the great work."
+    
     return render_template('summary.html', 
-                       categorized_workouts=categorized_workouts, 
-                       total_time=total_time,
-                       categories=CATEGORIES,
-                       motivation_msg=motivation_msg)   
+                           workouts_log=workouts_log, 
+                           total_time=total_time,
+                           categories=CATEGORIES,
+                           motivation_msg=motivation_msg)
 
-@app.route('/chart')
-def workout_chart():
-    """Renders the static workout chart page."""
-    return render_template('workout_chart.html', 
-                           chart_data=WORKOUT_CHART_DATA, 
-                           current_tab='chart')
+@app.route('/plan')
+def workout_plan():
+    """Workout Plan Tab"""
+    return render_template('workout_plan.html', 
+                           plan_data=WORKOUT_PLAN_DATA, 
+                           current_tab='plan')
 
 @app.route('/diet')
-def diet_chart():
-    """Renders the static diet chart page."""
-    return render_template('diet_chart.html', 
-                           diet_plans=DIET_CHART_DATA, 
+def diet_guide():
+    """Diet Guide Tab"""
+    return render_template('diet_guide.html', 
+                           diet_plans=DIET_GUIDE_DATA, 
                            current_tab='diet')
 
 @app.route('/progress')
 def progress_tracker():
-    """Renders the progress tracker tab, generating charts dynamically."""
+    """Progress Tracker Tab (Generates charts)"""
     chart_image_base64 = generate_charts_base64()
     
+    # Calculate total minutes for display below the chart
+    total_minutes = sum(sum(entry['duration'] for entry in sessions) for sessions in workouts_log.values())
+
     return render_template('progress_tracker.html', 
                            chart_image=chart_image_base64,
+                           total_minutes=total_minutes,
                            current_tab='progress')
 
 if __name__ == '__main__':
-    # You must install Matplotlib: pip install matplotlib
+    # Dependencies: pip install Flask matplotlib
     app.run(debug=True, host='0.0.0.0', port=5000)

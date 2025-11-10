@@ -1,16 +1,21 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h2 style="text-align: center; margin-top: 0;">Personal Progress Tracker</h2>
+    <h2 style="text-align: center; margin-top: 0; color: #495057;">📈 Personal Progress Tracker (Minutes Logged)</h2>
     
-    {% if chart_image %}
-        <div style="text-align: center; margin-top: 20px;">
-            <img src="data:image/png;base64,{{ chart_image }}" alt="Workout Progress Charts" style="max-width: 100%; height: auto;">
-        </div>
-    {% else %}
-        <p style="text-align: center; font-style: italic; color: #888; margin-top: 40px;">
-            Log some workout sessions to view your progress charts!
-        </p>
-    {% endif %}
-
+    <div style="text-align: center; margin-top: 20px; background-color: white; padding: 20px; border-radius: 8px;">
+        {% if chart_image %}
+            <div style="margin-bottom: 20px;">
+                <img src="data:image/png;base64,{{ chart_image }}" alt="Workout Progress Charts" style="max-width: 100%; height: auto;">
+            </div>
+            
+            <p style="font-size: 1.2em; font-weight: bold; color: #dc3545; padding: 10px 0; border-top: 1px dashed #ccc;">
+                Total Training Time Logged: {{ total_minutes }} minutes
+            </p>
+        {% else %}
+            <p style="text-align: center; font-style: italic; color: #888; margin-top: 40px; font-size: 1.1em;">
+                No workout data logged yet. Log a session to see your progress!
+            </p>
+        {% endif %}
+    </div>
 {% endblock %}
