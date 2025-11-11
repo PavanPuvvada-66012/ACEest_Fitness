@@ -65,8 +65,6 @@ def calculate_calories(category, duration_min, weight_kg):
 def index():
     """Handles the user information form submission and display."""
     # Accessing mutable global state is necessary for this simple in-memory app
-    global user_info
-
     if request.method == 'POST':
         # Removed redundant .strip() where request.form[] already returns a string
         name = request.form['name']
@@ -106,7 +104,7 @@ def index():
             return redirect(url_for('index'))
         except ValueError:
             flash("Invalid input. Age, Height, and Weight must be numbers.", 'danger')
-        except Exception as err:
+        except Exception as err: # pylint: disable=broad-exception-caught
             flash(f"An unexpected error occurred: {err}", 'danger')
     return render_template('index.html', user_info=user_info)
 # -----------------------------------------------------------
@@ -176,9 +174,7 @@ def summary():
         alert_class = "success"
 
     # Organize data for the template
-    summary_data = {
-        category: sessions for category, sessions in workouts_log.items()
-    }
+    summary_data = dict(workouts_log)
     return render_template('summary.html',
                            summary_data=summary_data,
                            total_time=total_time,
@@ -200,7 +196,6 @@ def progress_tracker():
         return render_template('progress.html', chart_img=None, total_minutes=0)
     # Convert to pandas Series for cleaner plotting preparation
     data_series = pd.Series(totals).sort_index()
-    df = pd.Series(totals).sort_index()
     # Create the Matplotlib figure
     fig = Figure(figsize=(8, 5), dpi=100, facecolor='#FFFFFF')
     chart_colors = ['#2196F3', '#4CAF50', '#FFC107'] # Blue, Green, Yellow
@@ -221,7 +216,7 @@ def progress_tracker():
     # Pylint: disable=invalid-name
     ax2 = fig.add_subplot(122)
     # Filter out categories with 0 minutes for the pie chart
-    pie_data = df[df > 0]
+    pie_data = dataseries[dataseries > 0]
     # Use the same color scheme, mapped to the existing data
     pie_colors = [
         chart_colors[i] for i, cat in enumerate(WORKOUT_CATEGORIES)
