@@ -44,7 +44,7 @@ class FlaskFitnessTrackerTests(unittest.TestCase):
 
     def post_user_info(self, name="Test User", regn="123", age=30, gender="M", height=180, weight=75):
         """Utility for simulating user info submission."""
-        # pylint: disable=too-many-arguments, too-many-positional-arguments
+        #pylint: disable=too-many-arguments
         return self.app_client.post(
             '/',
             data={
