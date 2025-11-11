@@ -216,7 +216,7 @@ def progress_tracker():
     # Pylint: disable=invalid-name
     ax2 = fig.add_subplot(122)
     # Filter out categories with 0 minutes for the pie chart
-    pie_data = data_series[data_series > 0]
+    pie_data = data_series[data_series > 0] # pylint: disable=unsubscriptable-object
     # Use the same color scheme, mapped to the existing data
     pie_colors = [
         chart_colors[i] for i, cat in enumerate(WORKOUT_CATEGORIES)
